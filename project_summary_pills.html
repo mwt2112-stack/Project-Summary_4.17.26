@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Columbia University – Project Summary Statement (Training)</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  color: #111;
+  background: #e0e0e0;
+  display: flex;
+  min-height: 100vh;
+  overflow: hidden;
+}
+#report-panel {
+  flex: 1 1 auto;
+  background: #fff;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+#report-static { flex-shrink: 0; background: #fff; z-index: 10; }
+#table-scroll-area { flex: 1 1 auto; overflow: auto; position: relative; }
+
+.nav-bar { display: flex; justify-content: space-between; align-items: center; padding: 5px 12px 5px; border-bottom: 1px solid #ccc; background: #fff; }
+.nav-bar a { color: #00419e; text-decoration: none; font-size: 11px; font-weight: bold; white-space: nowrap; }
+.nav-bar a:hover { text-decoration: underline; }
+.top-header { display: flex; align-items: flex-start; padding: 5px 10px 2px; }
+.logo-area { display: flex; align-items: center; gap: 3px; min-width: 160px; flex-shrink: 0; }
+.logo-crown { font-size: 15px; color: #003087; }
+.logo-text .cu-name { font-size: 9px; font-weight: bold; color: #003087; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.2; }
+.logo-text .cu-sub { font-size: 6px; color: #003087; text-transform: uppercase; letter-spacing: 0.3px; }
+.center-titles { flex: 1; text-align: center; line-height: 1.6; }
+.center-titles .fds { font-size: 10px; color: #333; font-style: italic; }
+.center-titles .t1  { font-size: 14px; font-weight: bold; }
+.center-titles .t2  { font-size: 13px; font-weight: bold; }
+.center-titles .t3  { font-size: 12px; font-weight: bold; }
+.center-titles .t4  { font-size: 12px; }
+.run-info { text-align: right; font-size: 11px; color: #111; white-space: nowrap; }
+.meta-block { padding: 6px 12px 6px; font-size: 11px; line-height: 1.8; }
+.meta-block b { font-weight: bold; }
+.clickable { cursor: pointer; border-radius: 2px; transition: background 0.12s, outline 0.12s; padding: 0 1px; }
+.clickable:hover  { background: #fff3cd; outline: 1px solid #e6a817; }
+.clickable.active { background: #d0e8ff; outline: 1px solid #0056b3; }
+.acct-desc-clickable { cursor: pointer; color: #003087; text-decoration: underline dotted #003087; }
+.acct-desc-clickable:hover { background: #e8f4ff; }
+.acct-desc-clickable.active { background: #d0e8ff; outline: 1px solid #0056b3; border-radius: 2px; padding: 0 1px; }
+@keyframes hint-pulse { 0% { box-shadow: 0 0 0 0 rgba(0,48,135,0.5); } 70% { box-shadow: 0 0 0 6px rgba(0,48,135,0); } 100% { box-shadow: 0 0 0 0 rgba(0,48,135,0); } }
+.first-hint { animation: hint-pulse 1.4s ease 0.9s 2; border-radius: 2px; }
+
+/* ── PILL BAR ── */
+.pill-bar-wrap {
+  padding: 5px 12px 4px;
+  border-bottom: 1px solid #ddd;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+.pill-bar-label {
+  font-size: 8.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #999;
+  white-space: nowrap;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 11px 3px 8px;
+  border-radius: 100px;
+  border: 1.5px solid #bbb;
+  background: #fff;
+  font-size: 9.5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  color: #444;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.pill-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.pill:hover { border-color: #555; color: #111; }
+
+.pill[data-pill="prioryear"] .pill-dot  { background: #c2410c; }
+.pill[data-pill="prioryear"].pill-on    { background: #ffedd5; border-color: #c2410c; color: #9a3412; }
+
+.pill[data-pill="budget"] .pill-dot     { background: #0e7490; }
+.pill[data-pill="budget"].pill-on       { background: #d0f0f8; border-color: #0e7490; color: #0a5c6e; }
+
+.pill[data-pill="actual"] .pill-dot     { background: #c97b00; }
+.pill[data-pill="actual"].pill-on       { background: #fff3d6; border-color: #8a4b00; color: #8a4b00; }
+
+.pill[data-pill="commitments"] .pill-dot { background: #7c3aed; }
+.pill[data-pill="commitments"].pill-on   { background: #ede9fe; border-color: #5b21b6; color: #5b21b6; }
+
+.pill[data-pill="available"] .pill-dot  { background: #2a8a2a; }
+.pill[data-pill="available"].pill-on    { background: #dff5df; border-color: #1a5c1a; color: #1a5c1a; }
+
+/* ── S4-STYLE HIGHLIGHT ENGINE ── */
+@keyframes hlShimmer { 0%{background-position:-200% center,0 0} 100%{background-position:300% center,0 0} }
+@keyframes hlBeat    { 0%,100%{filter:brightness(1)} 45%{filter:brightness(1.28)} }
+@keyframes hlIn      { from{opacity:0;transform:translateX(4px)} to{opacity:1;transform:translateX(0)} }
+@keyframes glowBreathe { 0%,100%{opacity:.45} 50%{opacity:1} }
+
+th.hl-hdr {
+  position:relative !important; overflow:hidden !important;
+  background-image:
+    linear-gradient(105deg,rgba(255,255,255,0) 20%,rgba(255,255,255,.55) 50%,rgba(255,255,255,0) 80%),
+    linear-gradient(var(--hl-fill),var(--hl-fill)) !important;
+  background-size:200% 100%,100% 100% !important;
+  background-position:-200% center,0 0 !important;
+  animation:hlShimmer 2.6s ease-in-out infinite !important;
+  border-left:1.5px solid var(--hl-line) !important;
+  border-right:1.5px solid var(--hl-line) !important;
+  border-top:2px solid var(--hl-line) !important;
+  border-bottom:3px solid var(--hl-strong) !important;
+  color:var(--hl-text) !important;
+}
+td.hl-cell {
+  background:var(--hl-cell) !important;
+  border-left:1px solid var(--hl-soft) !important;
+  border-right:1px solid var(--hl-soft) !important;
+  color:var(--hl-text) !important;
+  font-weight:700 !important;
+  animation:hlBeat 2.8s ease-in-out infinite,hlIn .35s ease both !important;
+}
+.hl-glow-strip {
+  position:absolute; pointer-events:none; z-index:3; top:0;
+  background:radial-gradient(ellipse 60% 55% at 50% 50%,
+    var(--hl-radial-center) 0%, var(--hl-radial-mid) 70%, transparent 100%);
+  animation:glowBreathe 2.8s ease-in-out infinite;
+}
+.hl-glow-strip::before,.hl-glow-strip::after {
+  content:''; position:absolute; top:0; bottom:0; width:2px;
+  background:linear-gradient(180deg,transparent 0%,var(--hl-edge) 8%,var(--hl-edge) 92%,transparent 100%);
+  animation:glowBreathe 2.8s ease-in-out infinite;
+}
+.hl-glow-strip::before { left:0; }
+.hl-glow-strip::after  { right:0; }
+
+/* ── TABLE ── */
+.table-wrap { padding: 0 4px 4px; position: relative; }
+table.rt { border-collapse: collapse; font-size: 9.5px; table-layout: auto; width: 100%; }
+col.c-fund  { width: 22px; } col.c-fdesc { width: 110px; } col.c-acct  { width: 42px; } col.c-adesc { width: 160px; }
+col.c-pyytd { width: 72px; } col.c-pyact { width: 72px; } col.c-origb { width: 72px; } col.c-ce    { width: 72px; }
+col.c-mo    { width: 58px; } col.c-yr    { width: 72px; }
+col.c-bbc   { width: 72px; } col.c-ov    { width: 58px; } col.c-enc   { width: 58px; } col.c-pre   { width: 58px; }
+col.c-bba   { width: 72px; } col.c-pct   { width: 36px; }
+
+.rt thead { position: sticky; top: 0; z-index: 4; background: #fff; }
+.rt thead tr.grp-row th { font-size: 10px; font-weight: bold; text-align: center; padding: 2px 3px; border: none; background: #fff; }
+th.span-atd { border-bottom: 1px solid #333 !important; } th.span-com { border-bottom: 1px solid #333 !important; }
+.rt tbody td { padding: 1px 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; font-size: 9.5px; height: 17px; line-height: 17px; }
+.rt tbody td.r  { text-align: right; } .rt tbody td.bl { text-align: right; color: #00419e; } .rt tbody td.g  { text-align: right; color: #666; }
+.rt tbody tr:hover td { background: #f5f5f5; }
+/* Header row — allow wrapping so headers shrink */
+.rt thead tr.hdr-row th { font-size: 9px; font-weight: bold; text-align: right; padding: 2px 3px; border-top: 1px solid #555; border-bottom: 1px solid #555; vertical-align: bottom; line-height: 1.2; white-space: normal; background: #fff; word-break: break-word; }
+.rt thead tr.hdr-row th.left { text-align: left; }
+tr.subtotal-sal td { font-weight: bold; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 2px 3px; height: 17px; line-height: 17px; }
+tr.subtotal-otps td { font-weight: bold; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 2px 3px; height: 17px; line-height: 17px; }
+tr.total-direct td { font-weight: bold; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 2px 3px; height: 17px; line-height: 17px; }
+tr.net-direct td { font-weight: bold; padding: 2px 3px; height: 17px; line-height: 17px; }
+tr.net-indirect td { font-weight: bold; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 2px 3px; height: 17px; line-height: 17px; }
+tr.fund-total td { font-weight: bold; border-top: 1px solid #333; border-bottom: 3px double #111; padding: 2px 3px; height: 17px; line-height: 17px; }
+tr.proj-total td { font-weight: bold; border-top: 1px solid #333; border-bottom: 3px double #111; padding: 3px 3px; height: 17px; line-height: 17px; }
+tr.spacer td { height: 2px; }
+
+/* fund balance section */
+.fb-section { padding: 20px 8px 6px; }
+table.fb { border-collapse: collapse; font-size: 10px; margin: 0 auto; }
+.fb th { font-weight: bold; text-align: right; padding: 3px 12px; vertical-align: bottom; line-height: 1.4; white-space: normal; font-size: 10px; }
+.fb th.left { text-align: left; }
+.fb thead tr.grp-fb th { text-align: center; border-bottom: 1px solid #333; font-weight: bold; }
+.fb thead tr.grp-fb th.empty { border-bottom: none; }
+.fb thead tr.hdr-fb th { border-top: 1px solid #555; border-bottom: 1px solid #555; }
+.fb tbody td { padding: 3px 12px; text-align: right; white-space: nowrap; font-size: 10px; height: 18px; }
+.fb tbody td.left { text-align: left; }
+.fb tr.fb-data td { border-top: 1px solid #ccc; }
+.fb tr.fb-total td { font-weight: bold; border-top: 2px solid #111; border-bottom: 3px double #111; padding: 3px 12px; }
+.cash-box { margin: 14px 0 0 0; font-size: 10px; width: 240px; }
+.cash-box table { width: 100%; border-collapse: collapse; }
+.cash-box td { padding: 3px 8px; border: 1px solid #aaa; }
+.cash-box tr:first-child td { border-bottom: none; } .cash-box tr:last-child td { border-top: none; }
+.cash-box td:first-child { text-align: right; font-weight: bold; } .cash-box td:last-child  { text-align: right; min-width: 80px; }
+
+/* explain panel */
+#explain-panel { width: 0; min-width: 0; overflow: hidden; background: #fafafa; border-left: 3px solid #003087; transition: width 0.28s ease, min-width 0.28s ease; display: flex; flex-direction: column; flex-shrink: 0; height: 100vh; }
+#explain-panel.open { width: 310px; min-width: 280px; }
+.panel-header { background: #003087; color: #fff; padding: 8px 12px; font-size: 13px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; min-width: 280px; flex-shrink: 0; }
+.panel-header button { background: none; border: none; color: #fff; cursor: pointer; font-size: 16px; }
+.panel-header button:hover { opacity: 0.7; }
+#explain-inner { padding: 13px; overflow-y: auto; flex: 1; min-width: 280px; }
+.explain-field-name { font-size: 15px; font-weight: bold; color: #003087; margin-bottom: 9px; border-bottom: 1px solid #ccd; padding-bottom: 5px; }
+.explain-section { margin-bottom: 11px; }
+.tip-badge { display: inline-block; background: #003087; color: #fff; font-size: 10px; font-weight: bold; padding: 2px 7px; border-radius: 2px; margin-bottom: 4px; letter-spacing: 0.3px; }
+.explain-section-body { font-size: 12px; color: #222; line-height: 1.6; }
+.conf-line { display: flex; justify-content: space-between; padding: 4px 12px; font-size: 10px; color: #444; flex-shrink: 0; }
+.training-badge { position: fixed; bottom: 10px; left: 10px; background: #003087; color: #fff; font-size: 9.5px; padding: 3px 9px; border-radius: 10px; z-index: 999; }
+</style>
+</head>
+<body>
+<div id="report-panel">
+  <div id="report-static">
+    <div class="nav-bar">
+      <a href="#">&lt; Previous Accounting Period</a>
+      <a href="#">Chartfield Detail Statement</a>
+      <a href="#">Chartfield Transaction Statement</a>
+      <a href="#">Trial Balance by Account Detail</a>
+      <a href="#">Payroll Summary Report</a>
+      <a href="#">Payroll Detail Report</a>
+      <a href="#">Next Accounting Period &gt;</a>
+    </div>
+    <div class="top-header">
+      <div class="logo-area">
+        <div class="logo-crown">♛</div>
+        <div class="logo-text">
+          <div class="cu-name">Columbia University</div>
+          <div class="cu-sub">In the City of New York</div>
+        </div>
+      </div>
+      <div class="center-titles">
+        <div class="fds">Financial Data Store</div>
+        <div class="t1">Columbia University</div>
+        <div class="t2">Project Summary Statement</div>
+        <div class="t3">UR012345 - ENG Training</div>
+        <div class="t4">As of March 2026</div>
+      </div>
+      <div class="run-info">
+        <div><b>Run Date:</b> 04/04/2026</div>
+        <div><b>Run Time:</b> 8:31:57PM</div>
+      </div>
+    </div>
+    <div class="meta-block">
+      <div><b>Report ID:</b> GL_RPT1008 &nbsp;&nbsp; <b>Run ID:</b> mwt2112 &nbsp;&nbsp; <b>Business Unit(s):</b> COLUM - Columbia University</div>
+      <div><b>Department/Rollup Selection:</b> ALL &nbsp;&nbsp; <b>Responsible Person:</b> N/A &nbsp;&nbsp; <b>Project Owning Department:</b> 5201234 - ENG Training</div>
+    </div>
+
+    <!-- ── PILL BAR — hidden by default, activated with ↑ key ── -->
+    <div class="pill-bar-wrap" id="pill-bar" style="display:none;">
+      <span class="pill-bar-label">Highlight:</span>
+      <div class="pill" data-pill="prioryear"   onclick="togglePill(this)"><span class="pill-dot"></span> Prior Year</div>
+      <div class="pill" data-pill="budget"       onclick="togglePill(this)"><span class="pill-dot"></span> Budget</div>
+      <div class="pill" data-pill="actual"       onclick="togglePill(this)"><span class="pill-dot"></span> Actual to Date</div>
+      <div class="pill" data-pill="commitments"  onclick="togglePill(this)"><span class="pill-dot"></span> Commitments</div>
+      <div class="pill" data-pill="available"    onclick="togglePill(this)"><span class="pill-dot"></span> Available Balance</div>
+      <span style="margin-left:auto;font-size:8px;color:#bbb;letter-spacing:.06em;">← → to navigate &nbsp; ↓ to hide</span>
+    </div>
+  </div>
+
+  <div id="table-scroll-area">
+  <div class="table-wrap" id="table-wrap">
+  <table class="rt" id="main-table">
+    <colgroup>
+      <col class="c-fund"><col class="c-fdesc"><col class="c-acct"><col class="c-adesc">
+      <col class="c-pyytd"><col class="c-pyact">
+      <col class="c-origb"><col class="c-ce">
+      <col class="c-mo"><col class="c-yr">
+      <col class="c-bbc">
+      <col class="c-ov"><col class="c-enc"><col class="c-pre">
+      <col class="c-bba"><col class="c-pct">
+    </colgroup>
+    <thead>
+      <tr class="grp-row">
+        <th colspan="8" class="empty"></th>
+        <th colspan="2" class="span-atd">Actual to Date</th>
+        <th colspan="4" class="span-com">Commitments</th>
+        <th colspan="2" class="empty"></th>
+      </tr>
+      <tr class="hdr-row">
+        <th class="left clickable first-hint" data-key="fund_code">Fund</th>
+        <th class="left clickable" data-key="fund_desc">Fund<br>Description</th>
+        <th class="left clickable" data-key="account">Account</th>
+        <th class="left clickable" data-key="acct_desc">Account Description</th>
+        <th class="right clickable col-prioryear" data-key="py_ytd">Prior Year<br>YTD</th>
+        <th class="right clickable col-prioryear" data-key="py_actual">Prior Year<br>Actual</th>
+        <th class="right clickable col-budget" data-key="orig_bud">Original<br>Budget</th>
+        <th class="right clickable col-budget" data-key="curr_est">Current<br>Estimate</th>
+        <th class="right clickable col-actual" data-key="atd_month">Month</th>
+        <th class="right clickable col-actual" data-key="atd_year">Year</th>
+        <th class="right clickable" data-key="bbc">Balance Before<br>Commitment</th>
+        <th class="right clickable col-commitments" data-key="open_vouchers">Open Vouchers</th>
+        <th class="right clickable col-commitments" data-key="encumbrance">Encumbrance</th>
+        <th class="right clickable col-commitments" data-key="pre_enc">Pre-<br>Encumbrance</th>
+        <th class="right clickable col-available" data-key="bba">Budget Balance<br>Available</th>
+        <th class="right clickable col-available" data-key="pct_used">% Used</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>40000</td>
+        <td class="acct-desc-clickable" data-acct="40000" tabindex="0">TUITION</td>
+        <td class="r col-prioryear">(125,450)</td><td class="r col-prioryear">(2,145,320)</td>
+        <td class="r col-budget">(2,750,000)</td><td class="r col-budget">(3,210,500)</td>
+        <td class="bl col-actual">0</td><td class="bl col-actual">(1,145,230)</td>
+        <td class="r">(2,065,270)</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">(2,065,270)</td><td class="r col-available">36%</td>
+      </tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>40095</td>
+        <td class="acct-desc-clickable" data-acct="40095" tabindex="0">TUITION REV-SEMESTER SPLIT</td>
+        <td class="r col-prioryear">(2,145,320)</td><td class="r col-prioryear">(18,750)</td>
+        <td class="r col-budget">0</td><td class="r col-budget">0</td>
+        <td class="bl col-actual">0</td><td class="bl col-actual">(2,120,100)</td>
+        <td class="r">2,120,100</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">2,120,100</td><td class="g col-available">N/A</td>
+      </tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>40500</td>
+        <td class="acct-desc-clickable" data-acct="40500" tabindex="0">SCHOOL FEES</td>
+        <td class="r col-prioryear">(8,900)</td><td class="r col-prioryear">(178,640)</td>
+        <td class="r col-budget">(245,000)</td><td class="r col-budget">(267,300)</td>
+        <td class="bl col-actual">0</td><td class="bl col-actual">(98,750)</td>
+        <td class="r">(168,550)</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">(168,550)</td><td class="r col-available">37%</td>
+      </tr>
+      <tr class="lbl-rev">
+        <td colspan="3"></td>
+        <td class="acct-desc-clickable" data-acct="total_revenue" tabindex="0" style="text-align:left;padding-left:4px;font-weight:bold;">Total Revenue</td>
+        <td class="r col-prioryear">(2,479,670)</td><td class="r col-prioryear">(2,340,960)</td>
+        <td class="r col-budget">(2,995,000)</td><td class="r col-budget">(3,477,800)</td>
+        <td class="r col-actual">0</td><td class="r col-actual">(3,364,080)</td>
+        <td class="r">113,720</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">113,720</td><td class="r col-available">103%</td>
+      </tr>
+      <tr class="spacer"><td colspan="16"></td></tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>50100</td>
+        <td class="acct-desc-clickable" data-acct="50100" tabindex="0">PROF (NONTENURED)</td>
+        <td class="r col-prioryear">7,875</td><td class="r col-prioryear">7,875</td>
+        <td class="r col-budget">8,111</td><td class="r col-budget">0</td>
+        <td class="bl col-actual">0</td><td class="bl col-actual">0</td>
+        <td class="r">0</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">0</td><td class="g col-available">N/A</td>
+      </tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>50110</td>
+        <td class="acct-desc-clickable" data-acct="50110" tabindex="0">ASSOC PROF (NONTENURED)</td>
+        <td class="r col-prioryear">15,750</td><td class="r col-prioryear">15,750</td>
+        <td class="r col-budget">18,223</td><td class="r col-budget">18,200</td>
+        <td class="bl col-actual">0</td><td class="bl col-actual">16,200</td>
+        <td class="r">0</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">0</td><td class="r col-available">100%</td>
+      </tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>53300</td>
+        <td class="acct-desc-clickable" data-acct="53300" tabindex="0">OFFICER OF ADMINISTRATION</td>
+        <td class="r col-prioryear">22,500</td><td class="r col-prioryear">22,500</td>
+        <td class="r col-budget">24,750</td><td class="r col-budget">24,500</td>
+        <td class="bl col-actual">0</td><td class="bl col-actual">20,800</td>
+        <td class="r">3,700</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">3,700</td><td class="r col-available">85%</td>
+      </tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>54410</td>
+        <td class="acct-desc-clickable" data-acct="54410" tabindex="0">STUDENTS-CASUAL (FT)</td>
+        <td class="r col-prioryear">18,750</td><td class="r col-prioryear">18,750</td>
+        <td class="r col-budget">22,500</td><td class="r col-budget">21,000</td>
+        <td class="bl col-actual">0</td><td class="bl col-actual">15,600</td>
+        <td class="r">5,400</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">5,400</td><td class="r col-available">74%</td>
+      </tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>59010</td>
+        <td class="acct-desc-clickable" data-acct="59010" tabindex="0">FRINGE BENEFIT CHARGE</td>
+        <td class="r col-prioryear">32,100</td><td class="r col-prioryear">32,100</td>
+        <td class="r col-budget">38,200</td><td class="r col-budget">37,500</td>
+        <td class="bl col-actual">0</td><td class="bl col-actual">31,800</td>
+        <td class="r">5,700</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">5,700</td><td class="r col-available">85%</td>
+      </tr>
+      <tr class="subtotal-sal">
+        <td colspan="3"></td>
+        <td class="acct-desc-clickable" data-acct="subtotal_sal" tabindex="0" style="text-align:left;padding-left:4px;">Sub-Total Salary and Fringe</td>
+        <td class="r col-prioryear">809,646</td><td class="r col-prioryear">941,242</td>
+        <td class="r col-budget">1,037,342</td><td class="r col-budget">1,034,147</td>
+        <td class="r col-actual">32,453</td><td class="r col-actual">888,124</td>
+        <td class="r">146,023</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">92,662</td><td class="r col-commitments">0</td>
+        <td class="r col-available">53,362</td><td class="r col-available">94%</td>
+      </tr>
+      <tr class="spacer"><td colspan="16"></td></tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>61099</td>
+        <td class="acct-desc-clickable" data-acct="61099" tabindex="0">SUMMER FINANCIAL AID BUDGET</td>
+        <td class="r col-prioryear">724,600</td><td class="r col-prioryear">1,870,540</td>
+        <td class="r col-budget">752,542</td><td class="r col-budget">1,037,005</td>
+        <td class="bl col-actual">(5,880)</td><td class="bl col-actual">(50,095)</td>
+        <td class="r">1,087,100</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">1,087,100</td><td class="r col-available">(4%)</td>
+      </tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>61230</td>
+        <td class="acct-desc-clickable" data-acct="61230" tabindex="0">AID TO NONSTUDENTS</td>
+        <td class="r col-prioryear">5,250</td><td class="r col-prioryear">8,400</td>
+        <td class="r col-budget">12,000</td><td class="r col-budget">14,500</td>
+        <td class="bl col-actual">0</td><td class="bl col-actual">9,800</td>
+        <td class="r">4,700</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">4,700</td><td class="r col-available">67%</td>
+      </tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>61405</td>
+        <td class="acct-desc-clickable" data-acct="61405" tabindex="0">SUPPLIES AND MATERIALS-GENERAL</td>
+        <td class="r col-prioryear">14,541</td><td class="r col-prioryear">23,074</td>
+        <td class="r col-budget">16,866</td><td class="r col-budget">30,530</td>
+        <td class="bl col-actual">0</td><td class="bl col-actual">19,502</td>
+        <td class="r">11,028</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">11,028</td><td class="r col-available">63%</td>
+      </tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>61410</td>
+        <td class="acct-desc-clickable" data-acct="61410" tabindex="0">OFFICE SUPPLIES-GENERAL</td>
+        <td class="r col-prioryear">3,200</td><td class="r col-prioryear">5,400</td>
+        <td class="r col-budget">6,500</td><td class="r col-budget">7,200</td>
+        <td class="bl col-actual">0</td><td class="bl col-actual">4,850</td>
+        <td class="r">2,350</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">0</td><td class="r col-commitments">0</td>
+        <td class="r col-available">2,350</td><td class="r col-available">67%</td>
+      </tr>
+      <tr>
+        <td>01</td><td>General Unrestricted Fund</td><td>64505</td>
+        <td class="acct-desc-clickable" data-acct="64505" tabindex="0">CONSULTANTS-GENERAL</td>
+        <td class="r col-prioryear">18,750</td><td class="r col-prioryear">35,600</td>
+        <td class="r col-budget">45,000</td><td class="r col-budget">52,300</td>
+        <td class="bl col-actual">1,200</td><td class="bl col-actual">28,500</td>
+        <td class="r">23,800</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">15,420</td><td class="r col-commitments">0</td>
+        <td class="r col-available">8,380</td><td class="r col-available">84%</td>
+      </tr>
+      <tr class="subtotal-otps">
+        <td colspan="3"></td>
+        <td class="acct-desc-clickable" data-acct="subtotal_otps" tabindex="0" style="text-align:left;padding-left:4px;">Sub-Total OTPS</td>
+        <td class="r col-prioryear">983,652</td><td class="r col-prioryear">2,006,046</td>
+        <td class="r col-budget">2,511,250</td><td class="r col-budget">2,837,108</td>
+        <td class="r col-actual">26,739</td><td class="r col-actual">2,558,634</td>
+        <td class="r">278,474</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">105,826</td><td class="r col-commitments">0</td>
+        <td class="r col-available">172,648</td><td class="r col-available">93%</td>
+      </tr>
+      <tr class="total-direct">
+        <td colspan="4" style="padding-left:4px;font-weight:bold;">Total Direct Expenses Prior to F&amp;A</td>
+        <td class="r col-prioryear">1,793,652</td><td class="r col-prioryear">2,006,046</td>
+        <td class="r col-budget">2,511,250</td><td class="r col-budget">2,837,108</td>
+        <td class="r col-actual">26,739</td><td class="r col-actual">2,558,634</td>
+        <td class="r">278,474</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">105,826</td><td class="r col-commitments">0</td>
+        <td class="r col-available">172,648</td><td class="r col-available">93%</td>
+      </tr>
+      <tr class="net-direct">
+        <td colspan="4" style="padding-left:4px;font-weight:bold;">Net Direct Activities</td>
+        <td class="r col-prioryear">(359,548)</td><td class="r col-prioryear">(141,654)</td>
+        <td class="r col-budget">(32,760)</td><td class="r col-budget">(262,757)</td>
+        <td class="r col-actual">26,739</td><td class="r col-actual">(545,481)</td>
+        <td class="r">282,724</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">176,898</td><td class="r col-commitments">0</td>
+        <td class="r col-available">176,898</td><td class="r col-available">167%</td>
+      </tr>
+      <tr class="proj-total">
+        <td colspan="4" style="padding-left:4px;font-weight:bold;">TOTAL PROJECT</td>
+        <td class="r col-prioryear">(359,548)</td><td class="r col-prioryear">(141,654)</td>
+        <td class="r col-budget">0</td><td class="r col-budget">(229,997)</td>
+        <td class="r col-actual">26,739</td><td class="r col-actual">(545,481)</td>
+        <td class="r">315,484</td>
+        <td class="r col-commitments">0</td><td class="r col-commitments">105,826</td><td class="r col-commitments">0</td>
+        <td class="r col-available">209,658</td><td class="r col-available">191%</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="fb-section">
+    <table class="fb">
+      <thead>
+        <tr class="grp-fb">
+          <th class="empty left" style="border-bottom:none;"></th>
+          <th class="empty" style="border-bottom:none;"></th>
+          <th class="empty" style="border-bottom:none;"></th>
+          <th class="empty" style="border-bottom:none;"></th>
+          <th class="empty" style="border-bottom:none;"></th>
+          <th colspan="4" style="text-align:center;font-size:7px;border-bottom:1px solid #333;">Ending Fund Balance</th>
+        </tr>
+        <tr class="hdr-fb">
+          <th class="left clickable" data-key="fund_code" style="padding-left:4px;">Fund Code</th>
+          <th class="clickable" data-key="beg_fb">Beginning Fund Balance (A)</th>
+          <th class="clickable" data-key="orig_bud_b">Original Budget (B)</th>
+          <th class="clickable" data-key="curr_est_c">Current Estimate (C)</th>
+          <th class="clickable" data-key="actual_d">Actual (D)</th>
+          <th class="clickable" data-key="efb_ab">Original Budget (A+B)</th>
+          <th class="clickable" data-key="efb_ac">Current Estimate (A+C)</th>
+          <th class="clickable" data-key="efb_ad">Actual (A+D)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="fb-data">
+          <td class="left" style="padding-left:30px;">01</td>
+          <td>(198,772)</td><td>(2,511,250)</td><td>(2,741,247)</td><td>(229,997)</td>
+          <td>(2,710,022)</td><td>(2,940,019)</td><td>(428,769)</td>
+        </tr>
+        <tr class="fb-total">
+          <td class="left" style="padding-left:4px;"></td>
+          <td><strong>(198,772)</strong></td><td><strong>(2,511,250)</strong></td>
+          <td><strong>(2,741,247)</strong></td><td><strong>(229,997)</strong></td>
+          <td><strong>(2,710,022)</strong></td><td><strong>(2,940,019)</strong></td><td><strong>(428,769)</strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="cash-box">
+      <table>
+        <tbody>
+          <tr><td class="clickable" data-key="claim_cash">Claim on Cash:</td><td>$356,358</td></tr>
+          <tr><td class="clickable" data-key="petty_cash">Petty Cash:</td><td>$-</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="conf-line">
+    <span>Columbia University Proprietary and Confidential</span><span>Page No. 1</span>
+  </div>
+  </div><!-- /table-scroll-area -->
+</div><!-- /report-panel -->
+
+<div id="explain-panel">
+  <div class="panel-header">
+    <span>📘 Field Guide</span>
+    <button onclick="closePanel()">✕</button>
+  </div>
+  <div id="explain-inner">
+    <div id="explain-content">
+      <p style="color:#555;font-size:11px;line-height:1.55;">Click any <strong style="color:#003087;">column header</strong> or <strong style="color:#003087;">account description</strong> to learn what it means.</p>
+    </div>
+  </div>
+</div>
+<div class="training-badge">🎓 Training Mode</div>
+
+<script>
+// ── PILL CONFIG ──
+var PILL_CFG = {
+  prioryear: {
+    colClass:'col-prioryear',
+    text:'#9a3412', line:'rgba(194,65,12,.38)', strong:'rgba(194,65,12,.72)',
+    soft:'rgba(194,65,12,.18)', fill:'rgba(194,65,12,.05)', cell:'rgba(194,65,12,.03)',
+    rCenter:'rgba(194,65,12,.05)', rMid:'rgba(194,65,12,.015)', edge:'rgba(194,65,12,.55)'
+  },
+  budget: {
+    colClass:'col-budget',
+    text:'#0a5c6e', line:'rgba(14,116,144,.38)', strong:'rgba(14,116,144,.72)',
+    soft:'rgba(14,116,144,.18)', fill:'rgba(14,116,144,.04)', cell:'rgba(14,116,144,.025)',
+    rCenter:'rgba(14,116,144,.04)', rMid:'rgba(14,116,144,.015)', edge:'rgba(14,116,144,.55)'
+  },
+  actual: {
+    colClass:'col-actual',
+    text:'#6b3800', line:'rgba(180,100,0,.38)', strong:'rgba(180,100,0,.72)',
+    soft:'rgba(180,100,0,.18)', fill:'rgba(196,167,71,.05)', cell:'rgba(196,167,71,.03)',
+    rCenter:'rgba(196,167,71,.05)', rMid:'rgba(196,167,71,.015)', edge:'rgba(180,100,0,.55)'
+  },
+  commitments: {
+    colClass:'col-commitments',
+    text:'#5b21b6', line:'rgba(124,58,237,.38)', strong:'rgba(124,58,237,.72)',
+    soft:'rgba(124,58,237,.18)', fill:'rgba(124,58,237,.04)', cell:'rgba(124,58,237,.025)',
+    rCenter:'rgba(124,58,237,.04)', rMid:'rgba(124,58,237,.015)', edge:'rgba(124,58,237,.55)'
+  },
+  available: {
+    colClass:'col-available',
+    text:'#1a5c1a', line:'rgba(42,140,92,.38)', strong:'rgba(42,140,92,.72)',
+    soft:'rgba(42,140,92,.18)', fill:'rgba(42,140,92,.04)', cell:'rgba(42,140,92,.025)',
+    rCenter:'rgba(42,140,92,.04)', rMid:'rgba(42,140,92,.015)', edge:'rgba(42,140,92,.55)'
+  }
+};
+
+var activePill = null;
+var glowStrips = [];
+
+function applyVars(el, cfg) {
+  el.style.setProperty('--hl-text',   cfg.text);
+  el.style.setProperty('--hl-line',   cfg.line);
+  el.style.setProperty('--hl-strong', cfg.strong);
+  el.style.setProperty('--hl-soft',   cfg.soft);
+  el.style.setProperty('--hl-fill',   cfg.fill);
+  el.style.setProperty('--hl-cell',   cfg.cell);
+  el.style.setProperty('--hl-edge',   cfg.edge);
+}
+
+function clearHighlights() {
+  document.querySelectorAll('.hl-hdr').forEach(function(el) { el.classList.remove('hl-hdr'); el.style.cssText = ''; });
+  document.querySelectorAll('.hl-cell').forEach(function(el) { el.classList.remove('hl-cell'); el.style.cssText = ''; });
+  glowStrips.forEach(function(s) { s.parentNode && s.parentNode.removeChild(s); });
+  glowStrips = [];
+}
+
+function positionGlowStrips(colClass, cfg) {
+  var wrapper = document.getElementById('table-wrap');
+  var table   = document.getElementById('main-table');
+  if (!wrapper || !table) return;
+  if (wrapper.offsetWidth === 0) { setTimeout(function(){ positionGlowStrips(colClass, cfg); }, 80); return; }
+
+  var headers = document.querySelectorAll('th.' + colClass);
+  headers.forEach(function(th) {
+    // Use offsetLeft relative to the table, then add table's offsetLeft within wrapper
+    var left = th.offsetLeft + table.offsetLeft;
+    var strip = document.createElement('div');
+    strip.className = 'hl-glow-strip';
+    strip.style.setProperty('--hl-radial-center', cfg.rCenter);
+    strip.style.setProperty('--hl-radial-mid',    cfg.rMid);
+    strip.style.setProperty('--hl-edge',          cfg.edge);
+    strip.style.left   = left + 'px';
+    strip.style.width  = th.offsetWidth + 'px';
+    strip.style.height = wrapper.scrollHeight + 'px';
+    strip.style.top    = '0';
+    wrapper.appendChild(strip);
+    glowStrips.push(strip);
+  });
+}
+
+function applyHighlight(pill) {
+  var cfg = PILL_CFG[pill];
+  if (!cfg) return;
+  document.querySelectorAll('th.' + cfg.colClass).forEach(function(th) { th.classList.add('hl-hdr'); applyVars(th, cfg); });
+  document.querySelectorAll('td.' + cfg.colClass).forEach(function(td) { td.classList.add('hl-cell'); applyVars(td, cfg); });
+
+  // Scroll to first highlighted column
+  var firstTh = document.querySelector('th.' + cfg.colClass);
+  if (firstTh) {
+    var scrollArea = document.getElementById('table-scroll-area');
+    var thRect = firstTh.getBoundingClientRect();
+    var saRect = scrollArea.getBoundingClientRect();
+    var isOOV = thRect.left < saRect.left + 40 || thRect.right > saRect.right - 40;
+    if (isOOV) {
+      scrollArea.scrollTo({ left: scrollArea.scrollLeft + (thRect.left - saRect.left) - 60, behavior: 'smooth' });
+    }
+  }
+
+  setTimeout(function() { positionGlowStrips(cfg.colClass, cfg); }, 60);
+}
+
+function togglePill(el) {
+  var p = el.getAttribute('data-pill');
+  if (activePill === p) {
+    el.classList.remove('pill-on');
+    clearHighlights();
+    activePill = null;
+    return;
+  }
+  if (activePill) {
+    var prev = document.querySelector('.pill[data-pill="' + activePill + '"]');
+    if (prev) prev.classList.remove('pill-on');
+    clearHighlights();
+  }
+  el.classList.add('pill-on');
+  activePill = p;
+  applyHighlight(p);
+}
+
+var scrollArea = document.getElementById('table-scroll-area');
+if (scrollArea) {
+  scrollArea.addEventListener('scroll', function() {
+    if (activePill) {
+      glowStrips.forEach(function(s) { s.parentNode && s.parentNode.removeChild(s); });
+      glowStrips = [];
+      positionGlowStrips(PILL_CFG[activePill].colClass, PILL_CFG[activePill]);
+    }
+  });
+}
+
+// ── ARROW KEY CONTROLS ──
+var PILL_ORDER = ['prioryear', 'budget', 'actual', 'commitments', 'available'];
+var pillBarVisible = false;
+
+function showPillBar() {
+  var bar  = document.getElementById('pill-bar');
+  bar.style.display = 'flex';
+  pillBarVisible = true;
+  // Auto-select Prior Year if nothing active
+  if (!activePill) {
+    var firstPill = document.querySelector('.pill[data-pill="prioryear"]');
+    if (firstPill) togglePill(firstPill);
+  }
+}
+
+function hidePillBar() {
+  var bar  = document.getElementById('pill-bar');
+  bar.style.display = 'none';
+  pillBarVisible = false;
+  // Clear highlights
+  if (activePill) {
+    var prev = document.querySelector('.pill[data-pill="' + activePill + '"]');
+    if (prev) prev.classList.remove('pill-on');
+    clearHighlights();
+    activePill = null;
+  }
+}
+
+function navigatePill(dir) {
+  if (!pillBarVisible) return;
+  var idx = activePill ? PILL_ORDER.indexOf(activePill) : -1;
+  var next = idx + dir;
+  if (next < 0) next = PILL_ORDER.length - 1;
+  if (next >= PILL_ORDER.length) next = 0;
+  var nextPill = document.querySelector('.pill[data-pill="' + PILL_ORDER[next] + '"]');
+  if (nextPill) togglePill(nextPill);
+}
+
+document.addEventListener('keydown', function(e) {
+  // Don't intercept if user is typing in an input
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (!pillBarVisible) showPillBar();
+  } else if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (pillBarVisible) hidePillBar();
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    if (pillBarVisible) navigatePill(1);
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    if (pillBarVisible) navigatePill(-1);
+  } else if (e.key === 'Escape') {
+    closePanel();
+    if (pillBarVisible) hidePillBar();
+  }
+});
+
+// ── FIELD GUIDE ──
+const ACCOUNT_DETAILS = {
+  "40000":{ label:"40000 — Tuition Revenue", definition:"Revenue from tuition charges.", interpret:"This is direct tuition income.", why:"It is the primary revenue source for instruction.", naturalAccounts:[{code:"40000",desc:"TUITION",def:"Direct tuition revenue."},{code:"40050",desc:"TUITION ADJUSTMENTS",def:"Tuition refunds and adjustments."}]},
+  "40095":{ label:"40095 — Tuition Revenue – Semester Split", definition:"Tuition revenue allocated to specific semesters.", interpret:"This separates tuition by enrollment period.", why:"It allows semester-level revenue reporting and matching.", naturalAccounts:[{code:"40095",desc:"TUITION REV-SEMESTER SPLIT",def:"Tuition revenue distributed by semester."}]},
+  "40500":{ label:"40500 — School Fees", definition:"Student fees beyond tuition (technology, facilities, etc.).", interpret:"These are non-tuition student charges.", why:"Fees support specific services and must be tracked separately from tuition.", naturalAccounts:[{code:"40500",desc:"SCHOOL FEES",def:"General student fees."},{code:"40510",desc:"TECHNOLOGY FEES",def:"Technology-related fees."}]},
+  "50100":{ label:"50100 — Professor (Nontenured)", definition:"Salary for non-tenured professors.", interpret:"This is regular faculty salary.", why:"It tracks faculty payroll and budget.", naturalAccounts:[{code:"50100",desc:"PROF (NONTENURED)",def:"Non-tenured professor salary."},{code:"50110",desc:"ASSOC PROF (NONTENURED)",def:"Associate professor salary."}]},
+  "50110":{ label:"50110 — Associate Professor (Nontenured)", definition:"Salary for non-tenured associate professors.", interpret:"This tracks associate-level faculty compensation.", why:"It distinguishes associate from full professor positions.", naturalAccounts:[{code:"50110",desc:"ASSOC PROF (NONTENURED)",def:"Non-tenured associate professor salary."}]},
+  "53300":{ label:"53300 — Officer of Administration", definition:"Salary for administrative officers.", interpret:"This is administrative staff payroll.", why:"It tracks administrative personnel compensation separately from faculty.", naturalAccounts:[{code:"53300",desc:"OFFICER OF ADMINISTRATION",def:"Administrative officer salary."},{code:"53310",desc:"SENIOR ADMINISTRATOR",def:"Senior administrative staff salary."}]},
+  "54410":{ label:"54410 — Students – Casual (FT)", definition:"Wages for full-time casual student employees.", interpret:"This covers temporary or part-time student labor.", why:"Student wages must be tracked separately from regular staff payroll.", naturalAccounts:[{code:"54410",desc:"STUDENTS-CASUAL (FT)",def:"Full-time casual student employee wages."},{code:"54420",desc:"STUDENTS-CASUAL (PT)",def:"Part-time casual student employee wages."}]},
+  "59010":{ label:"59010 — Fringe Benefit Charge", definition:"Allocated fringe benefit costs (health insurance, retirement, FICA, etc.).", interpret:"This is the employer cost of benefits.", why:"Fringe benefits are significant costs and must be tracked separately from salary.", naturalAccounts:[{code:"59010",desc:"FRINGE BENEFIT CHARGE",def:"Allocated fringe benefits."},{code:"59020",desc:"HEALTH INSURANCE ALLOCATION",def:"Health insurance cost allocation."}]},
+  "61099":{ label:"61099 — Summer Financial Aid Budget", definition:"Budget allocation for summer session financial aid.", interpret:"This is aid-related expense during summer.", why:"It manages summer aid costs separately from regular aid.", naturalAccounts:[{code:"61099",desc:"SUMMER FINANCIAL AID BUDGET",def:"Summer financial aid allocation."}]},
+  "61230":{ label:"61230 — Aid to Nonstudents", definition:"Financial aid or support provided to non-student recipients.", interpret:"This covers aid given outside traditional student aid.", why:"Aid to nonstudents must be tracked separately for reporting and compliance.", naturalAccounts:[{code:"61230",desc:"AID TO NONSTUDENTS",def:"Aid provided to non-student recipients."}]},
+  "61405":{ label:"61405 — Supplies and Materials – General", definition:"General supplies and materials expense.", interpret:"This covers consumables and general supplies.", why:"It tracks non-capital supply costs.", naturalAccounts:[{code:"61405",desc:"SUPPLIES AND MATERIALS-GENERAL",def:"General supplies and consumables."},{code:"61410",desc:"OFFICE SUPPLIES",def:"Office-specific supplies."}]},
+  "61410":{ label:"61410 — Office Supplies – General", definition:"General office supplies and consumables.", interpret:"This covers everyday office materials.", why:"Office supplies are a routine operating expense that must be managed within budget.", naturalAccounts:[{code:"61410",desc:"OFFICE SUPPLIES-GENERAL",def:"General office supply expenses."},{code:"61415",desc:"FORMS AND PRINTING",def:"Internal forms and printing supplies."}]},
+  "64505":{ label:"64505 — Consultants – General", definition:"Fees paid to external consultants and contractors.", interpret:"This covers professional services from outside vendors.", why:"Consultant fees are contracted services that must be tracked separately from staff.", naturalAccounts:[{code:"64505",desc:"CONSULTANTS-GENERAL",def:"General consultant fees."},{code:"64510",desc:"SPECIALIZED CONSULTANTS",def:"Specialized professional consulting."}]},
+  "total_revenue":{ label:"Total Revenue", definition:"Aggregate of all revenue sources for the project.", interpret:"Total income from all revenue accounts.", why:"Provides snapshot of total funding and revenue performance.", naturalAccounts:[{code:"40000",desc:"TUITION",def:"Revenue from student tuition charges."},{code:"40095",desc:"TUITION REV-SEMESTER SPLIT",def:"Semester-split tuition revenue."},{code:"40500",desc:"SCHOOL FEES",def:"Non-tuition student fees."}]},
+  "subtotal_sal":{ label:"Sub-Total Salary and Fringe", definition:"Sum of all salary and fringe benefit expenses.", interpret:"Total personnel cost including benefits.", why:"Shows total human resources investment before other operating expenses.", naturalAccounts:[{code:"50100",desc:"PROF (NONTENURED)",def:"Non-tenured professor salary."},{code:"53300",desc:"OFFICER OF ADMINISTRATION",def:"Administrative officer salary."},{code:"59010",desc:"FRINGE BENEFIT CHARGE",def:"Allocated fringe benefits."}]},
+  "subtotal_otps":{ label:"Sub-Total OTPS", definition:"Sum of all Other Than Personnel Services (non-salary) expenses.", interpret:"Total operating expenses excluding salaries and benefits.", why:"Tracks non-personnel spending to manage operational budget.", naturalAccounts:[{code:"61099",desc:"SUMMER FINANCIAL AID BUDGET",def:"Summer financial aid allocation."},{code:"61405",desc:"SUPPLIES AND MATERIALS-GENERAL",def:"General supplies and consumables."},{code:"64505",desc:"CONSULTANTS-GENERAL",def:"General consultant fees."}]}
+};
+
+const EXPLANATIONS = {
+  fund_code:{ label:"Fund Code", what:"Identifies the fund source.", interpret:"Read as the funding bucket.", why:"Confirms spending is hitting the correct type of money.", related:"Use with Fund Description and Budget Balance Available." },
+  fund_desc:{ label:"Fund Description", what:"The name or type of fund providing the money.", interpret:"Identifies which funding source you're looking at.", why:"Ensures clarity about which pool of money is being used.", related:"Works with Fund Code." },
+  account:{ label:"Account Code", what:"The specific account number for this expense or revenue line.", interpret:"A unique identifier for this type of transaction.", why:"Allows detailed tracking and reporting of specific activities.", related:"Use with Account Description." },
+  acct_desc:{ label:"Account Description", what:"What the account is used for (e.g., Tuition, Salaries, Supplies).", interpret:"Tells you the nature of the spending or income.", why:"Makes financial reports readable and understandable.", related:"Paired with Account Code." },
+  py_ytd:{ label:"Prior Year YTD", what:"Year-to-date actuals from the same period last fiscal year.", interpret:"Benchmark against current year spending.", why:"Helps identify year-over-year trends and changes.", related:"Compare with Actual to Date – Year." },
+  py_actual:{ label:"Prior Year Actual", what:"Full prior year actuals for the entire period.", interpret:"Historical reference for full-year spending.", why:"Provides context for budget planning and forecasting.", related:"Use with Current Estimate." },
+  orig_bud:{ label:"Original Budget", what:"The budget amount approved at the start of the fiscal year.", interpret:"What was planned to be spent or earned.", why:"Shows if actual spending differs from initial plans.", related:"Compare with Current Estimate and Actuals." },
+  curr_est:{ label:"Current Estimate", what:"The revised forecast based on latest information and assumptions.", interpret:"Expected outcome if current trends continue.", why:"More accurate than Original Budget because it reflects updates.", related:"Compare against Actual to Date and Original Budget." },
+  atd_month:{ label:"Actual to Date – Month", what:"Actual spending or revenue for the current month only.", interpret:"This month's activity in isolation.", why:"Helps identify seasonal patterns or monthly anomalies.", related:"Add to Year column to get full YTD picture." },
+  atd_year:{ label:"Actual to Date – Year", what:"Cumulative actual spending or revenue from the start of the fiscal year to now.", interpret:"Real money in or out year-to-date.", why:"Most important for assessing true financial position.", related:"Compare with Original Budget and Current Estimate." },
+  bbc:{ label:"Balance Before Commitment", what:"Remaining budget after subtracting only actual expenses.", interpret:"Cash available before considering pending obligations.", why:"Shows immediate spending room without considering future bills.", related:"Pre-commitment snapshot; see Encumbrance for pending items." },
+  open_vouchers:{ label:"Open Vouchers", what:"Invoices received and approved but not yet paid.", interpret:"Money committed but not yet out the door.", why:"Part of total financial obligation; must be considered in spending decisions.", related:"Add to Encumbrance and Pre-Encumbrance to get full commitments." },
+  encumbrance:{ label:"Encumbrance", what:"Purchase orders and contracts placed but not yet invoiced.", interpret:"Obligation created by committing to purchase something.", why:"Prevents double-spending; shows true available budget.", related:"Combined with Open Vouchers shows total pending obligations." },
+  pre_enc:{ label:"Pre-Encumbrance", what:"Approved spending that has not yet been fully committed.", interpret:"Soft commitments or spending in progress.", why:"Provides early warning of likely future obligations.", related:"Distinguishes between firm and probable spending." },
+  bba:{ label:"Budget Balance Available", what:"Remaining budget after subtracting actuals, open vouchers, encumbrances, and pre-encumbrances.", interpret:"What's truly available to spend without exceeding budget.", why:"The most important control field — prevents budget overruns.", related:"Critical for all spending decisions." },
+  pct_used:{ label:"% Used", what:"Percentage of the Current Estimate that has been spent or committed.", interpret:"Progress toward the budget limit.", why:"Quick visual check of budget utilization.", related:"100% means fully committed; >100% means overcommitted." },
+  beg_fb:{ label:"Beginning Fund Balance (A)", what:"The fund's financial position at the start of the fiscal year.", interpret:"Starting point for tracking changes.", why:"Baseline for understanding net changes during the year.", related:"Used to calculate Ending Fund Balance." },
+  orig_bud_b:{ label:"Original Budget (B)", what:"The original budget projection, used in ending fund balance calculation.", interpret:"Part of the formula showing planned budget impact on fund balance.", why:"Historical reference for how initial plans affect ending position.", related:"Combined with Beginning Fund Balance and Current Estimate." },
+  curr_est_c:{ label:"Current Estimate (C)", what:"Net income or loss forecast based on current budget assumptions.", interpret:"Expected change to fund position this year.", why:"Shows whether the fund will end in surplus or deficit.", related:"Added to Beginning Fund Balance to get projected ending position." },
+  actual_d:{ label:"Actual (D)", what:"Actual net income or loss realized during the fiscal year.", interpret:"Real financial result vs. forecast.", why:"Shows what actually happened compared to projections.", related:"Compare with Current Estimate to assess forecast accuracy." },
+  efb_ab:{ label:"Original Budget (A+B)", what:"Projected ending fund balance using Beginning Fund Balance and Original Budget.", interpret:"End position based on initial budget plan.", why:"Baseline scenario before considering current estimate or actuals.", related:"Compare with other ending balance scenarios." },
+  efb_ac:{ label:"Current Estimate (A+C)", what:"Projected ending fund balance using Beginning Fund Balance and Current Estimate.", interpret:"Forecast end position with latest assumptions.", why:"Most likely ending position based on current information.", related:"Compare with Original Budget and Actual scenarios." },
+  efb_ad:{ label:"Actual (A+D)", what:"Actual ending fund balance using Beginning Fund Balance and actual results.", interpret:"Real ending position based on actual performance.", why:"Shows true financial outcome for the fiscal year.", related:"Compare against projections to measure performance." },
+  claim_cash:{ label:"Claim on Cash", what:"The fund's claim on central cash based on its financial position.", interpret:"Not petty cash; it's a balance-sheet indicator of liquidity.", why:"Shows whether fund is drawing on or contributing to central resources.", related:"Read alongside Ending Fund Balance – Actual." },
+  petty_cash:{ label:"Petty Cash", what:"Physical petty cash held by the fund, if any.", interpret:"Usually zero unless specifically authorized.", why:"Part of complete cash position reporting.", related:"Separate from Claim on Cash." }
+};
+
+let activeEl = null;
+function openPanel(key, el) {
+  if (activeEl === el) { closePanel(); return; }
+  const data = EXPLANATIONS[key] || { label: key, what:"...", interpret:"...", why:"...", related:"..." };
+  if (activeEl) activeEl.classList.remove('active');
+  activeEl = el; el.classList.add('active');
+  document.getElementById('explain-content').innerHTML = `
+    <div class="explain-field-name">${data.label}</div>
+    <div class="explain-section"><div class="tip-badge">WHAT IT IS</div><div class="explain-section-body">${data.what}</div></div>
+    <div class="explain-section"><div class="tip-badge">HOW TO INTERPRET</div><div class="explain-section-body">${data.interpret}</div></div>
+    <div class="explain-section"><div class="tip-badge">WHY IT MATTERS</div><div class="explain-section-body">${data.why}</div></div>
+    <div class="explain-section"><div class="tip-badge">RELATED FIELDS</div><div class="explain-section-body">${data.related}</div></div>`;
+  document.getElementById('explain-panel').classList.add('open');
+  document.getElementById('explain-inner').scrollTop = 0;
+}
+function closePanel() {
+  document.getElementById('explain-panel').classList.remove('open');
+  if (activeEl) { activeEl.classList.remove('active'); activeEl = null; }
+}
+function openAccount(code, el) {
+  if (activeEl === el) { closePanel(); return; }
+  const data = ACCOUNT_DETAILS[code]; if (!data) return;
+  if (activeEl) activeEl.classList.remove('active');
+  activeEl = el; el.classList.add('active');
+  const list = (data.naturalAccounts || []).map(item => `
+    <div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px dotted #ddd;">
+      <div style="font-weight:bold;color:#003087;font-size:12px;">${item.code}</div>
+      <div style="font-size:11px;color:#222;">${item.desc}</div>
+      <div style="font-size:10px;color:#555;margin-top:2px;">${item.def}</div>
+    </div>`).join('');
+  document.getElementById('explain-content').innerHTML = `
+    <div class="explain-field-name">${data.label}</div>
+    <div class="explain-section"><div class="tip-badge">DEFINITION</div><div class="explain-section-body">${data.definition}</div></div>
+    <div class="explain-section"><div class="tip-badge">HOW TO INTERPRET</div><div class="explain-section-body">${data.interpret}</div></div>
+    <div class="explain-section"><div class="tip-badge">WHY IT MATTERS</div><div class="explain-section-body">${data.why}</div></div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid #ccc;">
+      <div style="font-weight:bold;font-size:12px;color:#003087;margin-bottom:8px;">Related Account Codes</div>
+      ${list}
+    </div>`;
+  document.getElementById('explain-panel').classList.add('open');
+  document.getElementById('explain-inner').scrollTop = 0;
+}
+
+document.querySelectorAll('.clickable').forEach(el => {
+  el.addEventListener('click', function(e) { e.stopPropagation(); openPanel(this.getAttribute('data-key'), this); });
+});
+document.querySelectorAll('.acct-desc-clickable').forEach(el => {
+  el.addEventListener('click', function(e) { e.stopPropagation(); openAccount(this.getAttribute('data-acct'), this); });
+});
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closePanel(); });
+</script>
+</body>
+</html>
